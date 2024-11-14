@@ -27,6 +27,7 @@ import CarListScreen from './screen/CarListScreen';
 import AccountScreen from './screen/AccountScreen';
 import SignInScreen from './screen/SignInScreen';
 import SignUpScreen from './screen/SignUpScreen';
+import DetailScreen from './screen/DetailScreen';
 
 const Tab = createBottomTabNavigator()
 
@@ -97,6 +98,14 @@ function App() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="Detail"
+            component={DetailScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          
         </Stack.Navigator>
     </NavigationContainer>
   );

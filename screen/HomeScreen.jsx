@@ -1,10 +1,11 @@
 import React from 'react';
-import {View, Text, Button, StyleSheet, Image, FlatList, Pressable} from 'react-native';
+import {View, Text, Button, StyleSheet, Image, FlatList, Pressable, ScrollView} from 'react-native';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 import CarCard from '../component/CarCard';
 import Feather from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
 
 const dataMenu = [
   {uri: '../media/images/Bg.png', title: 'Sewa Mobil', icon: 'truck'},
@@ -21,6 +22,17 @@ const dataCarList = [
   {uri: 'https://s3-alpha-sig.figma.com/img/de32/01fa/69420676705055d2fbaf709faad5fd9e?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=e6BrkU2omjsJL~jnBOzgbkuQWSTKE6n3laKTRJAkWui7pgLsytRv54ngpcPt4sLTm-ZKffDevazNCZKO-duW-s1sDlvvmG3G~jtcYBSq4yIuzi9F30xRPEtj~~PDBXfAORkFhNXEw8eHmfW9SIe91pid4lEVAXlnJOj5gL4q-zQ9HuTNiHWCzkZq7OZtFHTIxMnXktKh~3GCWlf6YvOXVF2m595aUNgXd3lpw15GvxyWoBmUhUQv0osRjjd9LVviS~JRJuXUp0YoKWZIyR0Y8RLNi4L~7XsrA-GatTuF~BpLQwBsjVDgroLRXB3N8tNGXxHxK-tlworfl-~dHknxKw__', title: 'Car 5', person: 1, baggage:1, price: 1000000, currency: 'Rp'}
 ];
 
+function Menu({item}) {
+  return (
+    <View style={style.containerItem}>
+      <Pressable style={style.menu} onPress={()=>{console.log(item.title)}}>
+        <Feather name={item.icon} size={30} color="white" />
+      </Pressable>
+      <Text style={style.menuTitle}>{item.title}</Text>
+    </View>
+  );
+};
+
 function HomeScreen() {
   const renderMenu = (item) => {
     return (
@@ -32,6 +44,8 @@ function HomeScreen() {
       </View>
     );
   };
+
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView
@@ -119,12 +133,15 @@ function HomeScreen() {
             />
           </View>
         </View>
-
-        <FlatList
-          data={dataMenu}
-          renderItem={renderMenu}
-          numColumns={4}
-        />
+        <View style={style.menuList}>
+        {
+          dataMenu.map((item, index) => {
+            return (
+              <Menu item={item} key={index}/>
+            )
+          })
+        }
+        </View>
       </View>
       <View
         style={{
@@ -135,7 +152,9 @@ function HomeScreen() {
         <Text style={{...style.textBold, fontSize:20}}>Daftar Mobil Pilihan</Text>
         <FlatList
           data={dataCarList}
-          renderItem={CarCard}
+          renderItem={({item, index}) => 
+            <CarCard item={item} onPress={() => navigation.navigate("Detail")}/>
+          }
           numColumns={1}
         />
       </View>
@@ -182,12 +201,12 @@ const style = StyleSheet.create({
   },
   menuContainer: {
       backgroundColor: 'white',
-      flex: 1,
+      flex: 1.2,
       alignItems: 'center',
     },
   menu: {
     backgroundColor: '#A43333',
-    padding: 20,
+    padding: 18,
     borderRadius: 10,
     marginTop: 32,
     marginBottom:8,
@@ -215,7 +234,10 @@ const style = StyleSheet.create({
   choiceImage: {
     width: 100,
     height: 100,
-  }
+  },
+  menuList: {
+    flexDirection: 'row',
+  },
 });
 
 export default HomeScreen;

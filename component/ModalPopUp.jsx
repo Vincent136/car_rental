@@ -17,7 +17,8 @@ export default function ModalPopup({ visible, children }) {
             backgroundColor: '#fff',
             width: '80%',
             padding: 20,
-            borderRadius: 10
+            borderRadius: 10,
+            textAlign: 'center'
         }}>
             {children}
         </View>

@@ -1,7 +1,20 @@
-import React, {useReducer} from 'react';
-import {KeyboardAvoidingView, View, Image, Text, StyleSheet, TextInput, Button} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useReducer, useState, useEffect} from 'react';
+import {
+  KeyboardAvoidingView,
+  SafeAreaView,
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  TextInput,
+  Button,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
+import Loading from '../component/Loading';
+import ModalPopUp from '../component/ModalPopUp';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initialFormState = {
   email: '',
@@ -12,30 +25,123 @@ function SignInScreen() {
   const [formData, setFormData] = useReducer((state, event) => {
     return {...state, [event.name]: event.value};
   }, initialFormState);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
-    const handleChange = (val, name) => {
-        setFormData({
-            name: name,
-            value: val,
-        });
+  const handleChange = (val, name) => {
+    setFormData({
+      name: name,
+      value: val,
+    });
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const res = await axios.post(
+        'http://192.168.1.57:3000/api/v1/auth/signin',
+        JSON.stringify(formData),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      console.log(res.data.data.token);
+      if (res) {
+        await AsyncStorage.setItem('token', res.data.data.token);
+      }
+    } catch (error) {
+      console.error(error.response.data.message);
+      setErrorMessage(error.response.data.message);
     }
+    setIsLoading(false);
+    setModalVisible(true);
+  };
 
-    const navigation = useNavigation();
+  useEffect(() => {
+    if (modalVisible === true) {
+      if (errorMessage === null) navigation.navigate('SignIn');
+      setTimeout(() => {
+        setModalVisible(false);
+        setFormData(initialFormState);
+        setErrorMessage(null);
+      }, 3000);
+    }
+  }, [modalVisible]);
+
+  const navigation = useNavigation();
 
   return (
-    <View style={style.container}>
-        <Image style={style.logo} source={require('../media/images/toyota.png')}/>
-        <Feather onPress={() => {navigation.navigate("Home")}} style={style.back}  name="x" size={50}/>
+    <SafeAreaView style={style.container}>
+      <Image
+        style={style.logo}
+        source={require('../media/images/toyota.png')}
+      />
+      <Feather
+        onPress={() => {
+          navigation.navigate('Home');
+        }}
+        style={style.back}
+        name="x"
+        size={50}
+      />
       <Text style={style.title}>Sign In</Text>
       <KeyboardAvoidingView style={{width: '80%'}}>
         <Text style={style.fieldTitle}>Email*</Text>
-        <TextInput style={style.field} onChangeText={(text) => handleChange(text, 'email')} placeholder='Contoh: JohnDoe@gmail.com'/>
+        <TextInput
+          style={style.field}
+          onChangeText={text => handleChange(text, 'email')}
+          placeholder="Contoh: JohnDoe@gmail.com"
+        />
         <Text style={style.fieldTitle}>Password</Text>
-        <TextInput style={style.field} secureTextEntry={true} onChangeText={(text) => handleChange(text, 'password')} placeholder='6+ Character'/>
-        <Button color="green" title="Sign In" />
-        <Text style={{ marginTop: 10, marginBottom: 10, fontSize: 14, textAlign: 'center'}}>Don't have an account? <Text style={style.link} onPress={() => navigation.navigate("SignUp")}> Sign Up Here</Text></Text>
+        <TextInput
+          style={style.field}
+          secureTextEntry={true}
+          onChangeText={text => handleChange(text, 'password')}
+          placeholder="6+ Character"
+        />
+        <Button color="green" title="Sign In" onPress={handleSubmit} />
+        <Text
+          style={{
+            marginTop: 10,
+            marginBottom: 10,
+            fontSize: 14,
+            textAlign: 'center',
+          }}>
+          Don't have an account?{' '}
+          <Text
+            style={style.link}
+            onPress={() => navigation.navigate('SignUp')}>
+            {' '}
+            Sign Up Here
+          </Text>
+        </Text>
       </KeyboardAvoidingView>
-    </View>
+      <Loading visible={isLoading} />
+      <ModalPopUp visible={modalVisible}>
+        <View style={style.modalContainer}>
+          {errorMessage ? (
+            <>
+              <Feather name="x-circle" size={32} />
+              {Array.isArray(errorMessage) ? (
+                errorMessage.map(error => {
+                  return <Text style={style.modalText}>{error.message}</Text>;
+                })
+              ) : (
+                <Text style={style.modalText}>{errorMessage}</Text>
+              )}
+            </>
+          ) : (
+            <>
+              <Feather name="check-circle" size={32} />
+              <Text style={style.modalText}>Sign In Success</Text>
+            </>
+          )}
+        </View>
+      </ModalPopUp>
+    </SafeAreaView>
   );
 }
 
@@ -49,7 +155,7 @@ const style = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    marginVertical: 40
+    marginVertical: 40,
   },
   fieldTitle: {
     fontSize: 20,

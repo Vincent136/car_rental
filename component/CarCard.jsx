@@ -1,15 +1,16 @@
 import React from "react";
-import { View, Image, Text, StyleSheet } from "react-native";
+import { View, Image, Text, StyleSheet, Pressable } from "react-native";
 import Feather from 'react-native-vector-icons/Feather';
 
-const CarCard = ({item}) => (
-    <View style={style.card}>
-        <Image source={{uri: item.uri}} style={style.cardImage} />
+export default function CarCard ({item, onPress}) {
+    return (
+    <Pressable style={style.card} onPress={onPress}>
+        <Image source={{uri: item.img}} style={style.cardImage} />
         <View style={style.cardInfo}>
-            <Text>{item.title}</Text>
+            <Text>{item.name}</Text>
             <View style={style.cardSubInfo}>
                 <Feather name="users" size={10} color="#8A8A8A" />
-                <Text style={{...style.cardSubText, marginRight:10}}>{item.person}</Text>
+                <Text style={{...style.cardSubText, marginRight:10}}>{item.seat}</Text>
                 <Feather name="briefcase" size={10} color="#8A8A8A" />
                 <Text style={{...style.cardSubText}}>{item.baggage}</Text>
             </View>
@@ -18,8 +19,9 @@ const CarCard = ({item}) => (
                 <Text style={style.cardPrice}>{item.price}</Text>
             </View>
         </View>
-    </View>
-)
+    </Pressable>
+    )
+}
 
 const style = StyleSheet.create({
     card: {
@@ -60,5 +62,3 @@ const style = StyleSheet.create({
         marginTop: 10,
     }
 })
-
-export default CarCard;
