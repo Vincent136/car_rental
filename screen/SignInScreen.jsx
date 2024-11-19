@@ -15,6 +15,8 @@ import Loading from '../component/Loading';
 import ModalPopUp from '../component/ModalPopUp';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import { postLogin, selectUser } from '../redux/reducers/user';
 
 const initialFormState = {
   email: '',
@@ -29,6 +31,9 @@ function SignInScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+
   const handleChange = (val, name) => {
     setFormData({
       name: name,
@@ -37,39 +42,42 @@ function SignInScreen() {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    try {
-      const res = await axios.post(
-        'http://192.168.1.57:3000/api/v1/auth/signin',
-        JSON.stringify(formData),
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      console.log(res.data.data.token);
-      if (res) {
-        await AsyncStorage.setItem('token', res.data.data.token);
-      }
-    } catch (error) {
-      console.error(error.response.data.message);
-      setErrorMessage(error.response.data.message);
-    }
-    setIsLoading(false);
-    setModalVisible(true);
+    // try {
+    //   const res = await axios.post(
+    //     'http://192.168.1.57:3000/api/v1/auth/signin',
+    //     JSON.stringify(formData),
+    //     {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     },
+    //   );
+    //   console.log(res.data.data.token);
+    //   if (res) {
+    //     await AsyncStorage.setItem('token', res.data.data.token);
+    //   }
+    // } catch (error) {
+    //   console.error(error.response.data.message);
+    //   setErrorMessage(error.response.data.message);
+    // }
+    await dispatch(postLogin(formData));
   };
 
-  useEffect(() => {
-    if (modalVisible === true) {
-      if (errorMessage === null) navigation.navigate('SignIn');
+  useEffect(()=>{
+    if(user.status === 'success'){
+      console.log("berhasil berhasil ")
+      console.log(user)
+      setModalVisible(true);
+      setErrorMessage(null);
       setTimeout(() => {
-        setModalVisible(false);
-        setFormData(initialFormState);
-        setErrorMessage(null);
-      }, 3000);
+        navigation.navigate('Home');
+      }, 1000);
     }
-  }, [modalVisible]);
+    else if(user.status === 'failed'){
+      setModalVisible(true);
+      setErrorMessage(user.message);
+    }
+  }, [navigation, user]);
 
   const navigation = useNavigation();
 

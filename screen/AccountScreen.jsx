@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {View, Text, Button, StyleSheet, Image} from 'react-native';
@@ -20,9 +20,13 @@ function AccountScreen() {
     }
   };
 
-  useEffect(() => {
-    if (!token) getToken();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        if (!token) getToken();
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView style={style.container}>

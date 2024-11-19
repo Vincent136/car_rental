@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, SafeAreaView, Image, Text, StyleSheet, ScrollView, Pressable} from 'react-native';
+import { View, SafeAreaView, Image, Text, StyleSheet, ScrollView, Pressable, Button} from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import Feather from 'react-native-vector-icons/Feather';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -17,16 +17,33 @@ const md = `## Include
   
   - Tidak termasuk biaya makan sopir Rp 75.000/hari
   - Jika overtime lebih dari 12 jam akan ada tambahan biaya Rp 20.000/jam
-  - Tidak termasuk akomodasi penginapan`.toString();
+  - Tidak termasuk akomodasi penginapan
+
+  ## Exclude
+  
+  - Tidak termasuk biaya makan sopir Rp 75.000/hari
+  - Jika overtime lebih dari 12 jam akan ada tambahan biaya Rp 20.000/jam
+  - Tidak termasuk akomodasi penginapan
+
+  ## Exclude
+  
+  - Tidak termasuk biaya makan sopir Rp 75.000/hari
+  - Jika overtime lebih dari 12 jam akan ada tambahan biaya Rp 20.000/jam
+  - Tidak termasuk akomodasi penginapan
+
+  ## Exclude
+  
+  - Tidak termasuk biaya makan sopir Rp 75.000/hari
+  - Jika overtime lebih dari 12 jam akan ada tambahan biaya Rp 20.000/jam
+  - Tidak termasuk akomodasi penginapan
+  
+  `.toString();
 
 
 function DetailScreen({route}) {
     const [dataCar, setDataCar] = useState([]);
 
-  const {id} = route.params;
-    useEffect(() =>{
-        console.log(id);
-    }, []);
+    const {id} = route.params;
 
     const navigation = useNavigation();
 
@@ -58,6 +75,12 @@ function DetailScreen({route}) {
         {/* <Image style={style.infoImage} source={require("../media/images/zenix.png")} /> */}
         <Markdown style={style.detail}>{md}</Markdown>
     </ScrollView>
+    <View style={style.purchaseContainer}>
+        <View>
+        <Text style={style.priceText}>Rp {dataCar.price}</Text>
+        </View>
+        <Button color="green" style={style.purchaseButton} title="Lanjutkan Pembayaran" onPress={() => {navigation.navigate("Method", {dataCar:dataCar})}}/>
+    </View>
   </SafeAreaView>
   );
 }
@@ -66,7 +89,6 @@ const style = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        padding: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -92,6 +114,7 @@ const style = StyleSheet.create({
     },
     infoContainer: {
         padding: 20,
+        marginHorizontal: 20,
         width: '100%',
         height: '55%',
         backgroundColor: '#FFFFFF',
@@ -116,6 +139,20 @@ const style = StyleSheet.create({
             marginBottom: 10,
         },
         heading2: { marginBottom: 10, fontSize: 18, fontWeight:'bold', fontFamily: 'PoppinsBold' },
+    },
+    purchaseContainer: {
+        height: '15%',
+        padding: 15,
+        width: '100%',
+        backgroundColor: '#EEEEEE',
+        position:'relative',
+        bottom: 0,
+    },
+    priceText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#222222',
+        marginBottom: 20,
     }
 });
 

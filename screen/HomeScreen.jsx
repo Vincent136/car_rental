@@ -1,25 +1,19 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, Button, StyleSheet, Image, FlatList, Pressable, ScrollView} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 import CarCard from '../component/CarCard';
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 const dataMenu = [
   {uri: '../media/images/Bg.png', title: 'Sewa Mobil', icon: 'truck'},
   {uri: '../media/images/Bg.png', title: 'Oleh-Oleh', icon: 'box'},
   {uri: '../media/images/Bg.png', title: 'Penginapan', icon: 'key'},
   {uri: '../media/images/Bg.png', title: 'Camera', icon: 'camera'},
-];
-
-const dataCarList = [
-  {uri: 'https://s3-alpha-sig.figma.com/img/de32/01fa/69420676705055d2fbaf709faad5fd9e?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=e6BrkU2omjsJL~jnBOzgbkuQWSTKE6n3laKTRJAkWui7pgLsytRv54ngpcPt4sLTm-ZKffDevazNCZKO-duW-s1sDlvvmG3G~jtcYBSq4yIuzi9F30xRPEtj~~PDBXfAORkFhNXEw8eHmfW9SIe91pid4lEVAXlnJOj5gL4q-zQ9HuTNiHWCzkZq7OZtFHTIxMnXktKh~3GCWlf6YvOXVF2m595aUNgXd3lpw15GvxyWoBmUhUQv0osRjjd9LVviS~JRJuXUp0YoKWZIyR0Y8RLNi4L~7XsrA-GatTuF~BpLQwBsjVDgroLRXB3N8tNGXxHxK-tlworfl-~dHknxKw__', title: 'Car 1', person: 1, baggage:1, price: 1000000, currency: 'Rp'},
-  {uri: 'https://s3-alpha-sig.figma.com/img/de32/01fa/69420676705055d2fbaf709faad5fd9e?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=e6BrkU2omjsJL~jnBOzgbkuQWSTKE6n3laKTRJAkWui7pgLsytRv54ngpcPt4sLTm-ZKffDevazNCZKO-duW-s1sDlvvmG3G~jtcYBSq4yIuzi9F30xRPEtj~~PDBXfAORkFhNXEw8eHmfW9SIe91pid4lEVAXlnJOj5gL4q-zQ9HuTNiHWCzkZq7OZtFHTIxMnXktKh~3GCWlf6YvOXVF2m595aUNgXd3lpw15GvxyWoBmUhUQv0osRjjd9LVviS~JRJuXUp0YoKWZIyR0Y8RLNi4L~7XsrA-GatTuF~BpLQwBsjVDgroLRXB3N8tNGXxHxK-tlworfl-~dHknxKw__', title: 'Car 2', person: 1, baggage:1, price: 1000000, currency: 'Rp'},
-  {uri: 'https://s3-alpha-sig.figma.com/img/de32/01fa/69420676705055d2fbaf709faad5fd9e?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=e6BrkU2omjsJL~jnBOzgbkuQWSTKE6n3laKTRJAkWui7pgLsytRv54ngpcPt4sLTm-ZKffDevazNCZKO-duW-s1sDlvvmG3G~jtcYBSq4yIuzi9F30xRPEtj~~PDBXfAORkFhNXEw8eHmfW9SIe91pid4lEVAXlnJOj5gL4q-zQ9HuTNiHWCzkZq7OZtFHTIxMnXktKh~3GCWlf6YvOXVF2m595aUNgXd3lpw15GvxyWoBmUhUQv0osRjjd9LVviS~JRJuXUp0YoKWZIyR0Y8RLNi4L~7XsrA-GatTuF~BpLQwBsjVDgroLRXB3N8tNGXxHxK-tlworfl-~dHknxKw__', title: 'Car 3', person: 1, baggage:1, price: 1000000, currency: 'Rp'},
-  {uri: 'https://s3-alpha-sig.figma.com/img/de32/01fa/69420676705055d2fbaf709faad5fd9e?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=e6BrkU2omjsJL~jnBOzgbkuQWSTKE6n3laKTRJAkWui7pgLsytRv54ngpcPt4sLTm-ZKffDevazNCZKO-duW-s1sDlvvmG3G~jtcYBSq4yIuzi9F30xRPEtj~~PDBXfAORkFhNXEw8eHmfW9SIe91pid4lEVAXlnJOj5gL4q-zQ9HuTNiHWCzkZq7OZtFHTIxMnXktKh~3GCWlf6YvOXVF2m595aUNgXd3lpw15GvxyWoBmUhUQv0osRjjd9LVviS~JRJuXUp0YoKWZIyR0Y8RLNi4L~7XsrA-GatTuF~BpLQwBsjVDgroLRXB3N8tNGXxHxK-tlworfl-~dHknxKw__', title: 'Car 4', person: 1, baggage:1, price: 1000000, currency: 'Rp'},
-  {uri: 'https://s3-alpha-sig.figma.com/img/de32/01fa/69420676705055d2fbaf709faad5fd9e?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=e6BrkU2omjsJL~jnBOzgbkuQWSTKE6n3laKTRJAkWui7pgLsytRv54ngpcPt4sLTm-ZKffDevazNCZKO-duW-s1sDlvvmG3G~jtcYBSq4yIuzi9F30xRPEtj~~PDBXfAORkFhNXEw8eHmfW9SIe91pid4lEVAXlnJOj5gL4q-zQ9HuTNiHWCzkZq7OZtFHTIxMnXktKh~3GCWlf6YvOXVF2m595aUNgXd3lpw15GvxyWoBmUhUQv0osRjjd9LVviS~JRJuXUp0YoKWZIyR0Y8RLNi4L~7XsrA-GatTuF~BpLQwBsjVDgroLRXB3N8tNGXxHxK-tlworfl-~dHknxKw__', title: 'Car 5', person: 1, baggage:1, price: 1000000, currency: 'Rp'}
 ];
 
 function Menu({item}) {
@@ -34,16 +28,31 @@ function Menu({item}) {
 };
 
 function HomeScreen() {
-  const renderMenu = (item) => {
-    return (
-      <View style={style.containerItem}>
-        <Pressable style={style.menu} onPress={()=>{}}>
-          <Feather name={item.item.icon} size={30} color="white" />
-        </Pressable>
-        <Text style={style.menuTitle}>{item.item.title}</Text>
-      </View>
-    );
+  const [dataCarList, setDataCarList] = useState([])
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get('http://192.168.1.57:3000/api/v1/cars')
+      setDataCarList(res.data.data);
+      console.log(res.data.data);
+    } catch (error) {
+      console.log(error);
+    } 
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        fetchData();
+      };
+    }, [])
+  );
+
+  useEffect(
+    () => {
+      fetchData();
+    }, []
+  )
 
   const navigation = useNavigation();
 
@@ -153,7 +162,7 @@ function HomeScreen() {
         <FlatList
           data={dataCarList}
           renderItem={({item, index}) => 
-            <CarCard item={item} onPress={() => navigation.navigate("Detail")}/>
+            <CarCard item={item} onPress={() => navigation.navigate("Detail", {id: item.id})}/>
           }
           numColumns={1}
         />

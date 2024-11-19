@@ -12,7 +12,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 import CarCard from '../component/CarCard';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 function CarListScreen() {
@@ -29,9 +29,19 @@ function CarListScreen() {
     } 
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        fetchData();
+      };
+    }, [])
+  );
+
+  useEffect(
+    () => {
+      fetchData();
+    }, []
+  )
 
   const navigation = useNavigation();
 

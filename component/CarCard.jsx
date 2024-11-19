@@ -25,7 +25,6 @@ export default function CarCard ({item, onPress}) {
 
 const style = StyleSheet.create({
     card: {
-        flex: 1,
         flexDirection:'row',
         backgroundColor: '#fff',
         shadowColor: '#000',
@@ -38,9 +37,9 @@ const style = StyleSheet.create({
         elevation: 2,
         borderRadius: 10,
         marginBottom: 10,
-        marginVertical: 10,
+        marginVertical: 20,
         marginHorizontal: 15,
-        padding:25
+        padding:25,
     },
     cardImage: {
         width: 60,

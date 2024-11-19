@@ -28,6 +28,8 @@ import AccountScreen from './screen/AccountScreen';
 import SignInScreen from './screen/SignInScreen';
 import SignUpScreen from './screen/SignUpScreen';
 import DetailScreen from './screen/DetailScreen';
+import PurchaseScreen from './screen/PurchaseScreen';
+import PurchaseMethodScreen from './screen/PurchaseMethodScreen';
 
 const Tab = createBottomTabNavigator()
 
@@ -101,6 +103,21 @@ function App() {
           <Stack.Screen
             name="Detail"
             component={DetailScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Method"
+            component={PurchaseMethodScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="Purchase"
+            component={PurchaseScreen}
             options={{
               headerShown: false,
             }}
