@@ -14,19 +14,16 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import CarCard from '../component/CarCard';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCars, selectCar } from '../redux/reducer/car';
+import { resetState } from '../redux/reducer/form';
 
 function CarListScreen() {
-  const [dataCarList, setDataCarList] = useState([])
 
+  const dispatch = useDispatch();
+  const car = useSelector(selectCar);
   const fetchData = async () => {
-    try {
-      console.log("masuk");
-      const res = await axios.get('http://192.168.1.57:3000/api/v1/cars')
-      setDataCarList(res.data.data);
-      console.log(res.data.data);
-    } catch (error) {
-      console.log(error);
-    } 
+    await dispatch(getCars());
   };
 
   useFocusEffect(
@@ -47,9 +44,9 @@ function CarListScreen() {
 
   return (
     <SafeAreaView style={style.container}>
-      <FlatList data={dataCarList}
+      <FlatList data={car.data}
       renderItem={({item, index}) => 
-        <CarCard item={item} key={item.id} onPress={() => navigation.navigate("Detail", {id:item.id})}/>
+        <CarCard item={item} key={item.id} onPress={() => {if((item.id !== car.details?.id)) dispatch(resetState()); navigation.navigate("Detail", {id: item.id}) }}/>
       } 
       numColumns={1} />
     </SafeAreaView>

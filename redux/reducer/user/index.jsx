@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { postLogin, getProfile } from './api';
+import { postRegister, postLogin, getProfile } from './api';
 
 const initialState = {
     data: null, // variable untuk menyimpan data user
@@ -16,7 +16,11 @@ export const userSlice = createSlice({
         logout: (state, action) => {
             state.data = null;
             state.isLogin = false;
+            state.message = null;
             state.token = null;
+        },
+        setStateByName: (state, action) => {
+            state[action.payload.name] = action.payload.value;
         },
         resetState: (state) => initialState,
     },
@@ -48,6 +52,20 @@ export const userSlice = createSlice({
             state.message = action.payload.message;
         });
         builder.addCase(getProfile.rejected, (state, action) => {
+            console.log(action);
+            state.message = action.payload;
+        });
+
+        //Post Register Reducers
+        builder.addCase(postRegister.pending, (state, action) => {
+            state.message = action.payload.message;
+        });
+        builder.addCase(postRegister.fulfilled, (state, action) => {
+            state.status = 'success';
+            state.data = action.payload.data
+            state.message = action.payload.message;
+        });
+        builder.addCase(postRegister.rejected, (state, action) => {
             state.status = 'failed';
             console.log(action);
             state.message = action.payload;
@@ -56,6 +74,6 @@ export const userSlice = createSlice({
 });
 
 export const selectUser = (state) => state.user; // selector untuk mengambil state user
-export const { logout, resetState } = userSlice.actions; // action untuk logout
-export { postLogin, getProfile }; // action untuk panggil api postLogin dan get Profile
+export const { logout, setStateByName ,resetState } = userSlice.actions; // action untuk logout
+export { postLogin, getProfile, postRegister }; // action untuk panggil api postLogin dan get Profile
 export default userSlice.reducer; // user reducer untuk di tambahkan ke store

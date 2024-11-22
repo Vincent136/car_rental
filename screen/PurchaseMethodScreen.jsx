@@ -2,26 +2,51 @@ import React, {useState, useEffect} from 'react';
 import { useNavigation } from '@react-navigation/native';
 import StepIndicator from 'react-native-step-indicator';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { View, Pressable, Text, StyleSheet, FlatList, TextInput, SafeAreaView, Button } from 'react-native';
+import { View, Pressable, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Button, TouchableOpacity, ScrollView, Image } from 'react-native';
 import CarCard from '../component/CarCard';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectForm, setBank, setPromo } from '../redux/reducer/form';
+import { selectCar } from '../redux/reducer/car';
 
 const labels = ["Pilih Metode","Bayar", "Tiket"];
 
 const bank = [
-    {id: 1, name: 'BCA Transfer', img: 'bank'},
-    {id: 2, name: 'BNI Transfer', img: 'bank'},
-    {id: 3, name: 'Mandiri Transfer', img: 'bank'},
-    {id: 4, name: 'CIMB Niaga Transfer', img: 'bank'},
+    {id: 1, name: 'BCA', img: require('../media/images/bca.png')},
+    {id: 2, name: 'Mandiri', img: require('../media/images/mandiri.jpg')},
+    {id: 3, name: 'CIMB Niaga', img: require('../media/images/BNI.png')},
 ]
 
+const { height } = Dimensions.get('window')
+
 function PurchaseMethod({route}) {
+    const [promoLocal, setPromoLocal] = useState("");
+    const [disabledButton, setDisabledButton] = useState(true);
 
     const {dataCar} = route.params;
 
+    const form = useSelector(selectForm);
+    const car = useSelector(selectCar);
+
+    const dispatch = useDispatch();
+
     const navigation = useNavigation();
+
+
+    useEffect(() => {
+        if (form.bank) {
+            setDisabledButton(false);
+        } else {
+            setDisabledButton(true);
+        }
+    }, [form])
+
+    // useEffect(() => {
+    //     console.log(promoLocal);
+    // }, [promoLocal])
 
     return (
     <SafeAreaView style={style.container}>
+        <ScrollView>
             <Pressable style={style.backIcon} onPress={() => navigation.goBack()}>
                 <IonIcon  name="arrow-back-outline" size={32}/>
                 <Text style={style.bold}> Pembayaran </Text>
@@ -34,36 +59,39 @@ function PurchaseMethod({route}) {
             labels={labels}
             stepCount={3}
         />
-        <CarCard item={dataCar} />
-        <View>
+        <CarCard item={car.details} />
+        <View style={style.padContainer}>
             <Text style={style.bold}>Pilih Bank Transfer</Text>
             <Text style={style.bold}>Kamu bisa membayar dengan transfer melalui ATM, Internet Banking atau Mobile Banking</Text>
         </View> 
 
-        <View style={{height:185}}>
-            <FlatList data={bank}
-            renderItem={({item, index}) => 
-                <Pressable style={style.bankItem} >
-                    <View style={style.bankIcon}>
-                        {/* <IonIcon name={item.img} size={32} color="#007aff"/> */}
+        <View style={{...style.padContainer}}>
+            {bank.map(item => {
+                return (
+                <TouchableOpacity key={item.id} style={style.bankItem} onPress={() => {dispatch(setBank(item))}}>
+                    <View style={{flexDirection:'row'}}>
+                        <Image style={style.bankIcon} source={item.id} />
+                        <Text style={style.bankName}>{item.name} Transfer</Text>
                     </View>
-                    <Text style={style.bankName}>{item.name}</Text>
-                </Pressable>
+                    {(form.bank?.id == item.id) &&<IonIcon name="checkmark-outline" size={24} color="green"/>}
+                </TouchableOpacity>
+                )
+            })
             } 
-        numColumns={1} />
         </View>
         <View style={style.promoContainer}>
             <Text style={style.promoTitle}>% Pakai Kode Promo</Text>
             <View style={style.promoFieldContainer}>
-                <TextInput style={style.promoField} placeholder='Masukkan kode'></TextInput>
-                <Pressable style={style.promoButton}><Text style={style.promoButtonText}>Terapkan</Text></Pressable>
+                <TextInput style={style.promoField} onChangeText={(item) => setPromoLocal(item)} placeholder='Masukkan kode'></TextInput>
+                <Pressable style={style.promoButton} onPress={() => dispatch(setPromo(promoLocal))}><Text style={style.promoButtonText}>Terapkan</Text></Pressable>
             </View>
         </View>
+        </ScrollView>
         <View style={style.purchaseContainer}>
             <View>
                 <Text style={style.priceText}>Rp {dataCar.price}</Text>
             </View>
-            <Button color="green" style={style.purchaseButton} title="Lanjutkan Pembayaran" onPress={() => {navigation.navigate("Method", {dataCar:dataCar})}}/>
+            <Button disabled={disabledButton} color="green" style={style.purchaseButton} title="Lanjutkan Pembayaran" onPress={() => {navigation.navigate("Purchase", {dataCar:dataCar})}}/>
         </View>
     </SafeAreaView>
         
@@ -100,14 +128,11 @@ const style = StyleSheet.create({
         // justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
+        justifyContent:'space-between',
     },
     bankIcon: {
-        width: 25,
-        height: 25,
-        borderRadius: 25,
-        backgroundColor: '#f2f2f2',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: 50,
+        height: 'auto',
     },
     bankName: {
         fontSize: 18,
@@ -126,7 +151,8 @@ const style = StyleSheet.create({
         elevation: 2,
         borderRadius: 10,
         padding:25,
-        marginTop: 10
+        marginTop: 10,
+        marginBottom: height* 0.15
     },
     promoField: {
         flex:1,
@@ -172,6 +198,9 @@ const style = StyleSheet.create({
         fontWeight: 'bold',
         color: '#222222',
         marginBottom: 20,
+    },
+    padContainer: {
+        paddingHorizontal:20
     }
 })
 

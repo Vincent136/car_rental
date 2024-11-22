@@ -31,6 +31,10 @@ import DetailScreen from './screen/DetailScreen';
 import PurchaseScreen from './screen/PurchaseScreen';
 import PurchaseMethodScreen from './screen/PurchaseMethodScreen';
 
+import {persistor, store} from './redux/store'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react';
+
 const Tab = createBottomTabNavigator()
 
 function Tabs() {
@@ -77,54 +81,58 @@ function App() {
   const Stack = createNativeStackNavigator();
 
   return (
-    <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Tabs"
-            component={Tabs}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="SignIn"
-            component={SignInScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="SignUp"
-            component={SignUpScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Detail"
-            component={DetailScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Method"
-            component={PurchaseMethodScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
+    <Provider store={store}>
+      <PersistGate  persistor={persistor}>
+        <NavigationContainer>
+            <Stack.Navigator>
+              <Stack.Screen
+                name="Tabs"
+                component={Tabs}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="SignIn"
+                component={SignInScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="SignUp"
+                component={SignUpScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Detail"
+                component={DetailScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Method"
+                component={PurchaseMethodScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
 
-          <Stack.Screen
-            name="Purchase"
-            component={PurchaseScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          
-        </Stack.Navigator>
-    </NavigationContainer>
+              <Stack.Screen
+                name="Purchase"
+                component={PurchaseScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              
+            </Stack.Navigator>
+        </NavigationContainer>
+      </PersistGate>
+    </Provider>
   );
 }
 

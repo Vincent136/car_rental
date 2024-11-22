@@ -1,13 +1,25 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Button, StyleSheet, Image, FlatList, Pressable, ScrollView} from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Image,
+  FlatList,
+  Pressable,
+  ScrollView,
+} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 import CarCard from '../component/CarCard';
 import Feather from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
+import {resetState} from '../redux/reducer/form';
+import {selectCar} from '../redux/reducer/car';
+import {useSelector, useDispatch} from 'react-redux';
 
 const dataMenu = [
   {uri: '../media/images/Bg.png', title: 'Sewa Mobil', icon: 'truck'},
@@ -19,25 +31,31 @@ const dataMenu = [
 function Menu({item}) {
   return (
     <View style={style.containerItem}>
-      <Pressable style={style.menu} onPress={()=>{console.log(item.title)}}>
+      <Pressable
+        style={style.menu}
+        onPress={() => {
+          console.log(item.title);
+        }}>
         <Feather name={item.icon} size={30} color="white" />
       </Pressable>
       <Text style={style.menuTitle}>{item.title}</Text>
     </View>
   );
-};
+}
 
 function HomeScreen() {
-  const [dataCarList, setDataCarList] = useState([])
+  const [dataCarList, setDataCarList] = useState([]);
+
+  const car = useSelector(selectCar);
+  const dispatch = useDispatch();
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://192.168.1.57:3000/api/v1/cars')
+      const res = await axios.get('http://192.168.1.57:3000/api/v1/cars');
       setDataCarList(res.data.data);
-      console.log(res.data.data);
     } catch (error) {
       console.log(error);
-    } 
+    }
   };
 
   useFocusEffect(
@@ -45,22 +63,17 @@ function HomeScreen() {
       return () => {
         fetchData();
       };
-    }, [])
+    }, []),
   );
 
-  useEffect(
-    () => {
-      fetchData();
-    }, []
-  )
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView
-      style={
-        style.container
-      }>
+    <SafeAreaView style={style.container}>
       <View style={style.header}>
         <View
           style={{
@@ -87,8 +100,7 @@ function HomeScreen() {
             Your Location
           </Text>
         </View>
-        <View
-          style={style.avatarContainer}>
+        <View style={style.avatarContainer}>
           <Image
             source={{
               uri: 'https://s3-alpha-sig.figma.com/img/0378/6ae3/d101f354911576fc8814c5fe373af941?Expires=1731888000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Agqrv9Z8V3X6wynU~uC52bxq8kimhJGy6thIrMifLkdsqgt0z2Tp-oIMSD-BCkKLFSmazflaziE0gIvEu5fYmMi2gLP-6laLKgm6n-Y7fybZOn0ObZt6TRp0Ke0YqzexS-6sGcFsKlxQpuzpw1G~JgO4Qvva6Ff7da-1MsSzCo9JBW5ZhT4o7h1uC-LxZp3iy5mRvU-JRvSnRYr9ieBL06NzzVUVdxy3SwD6gKsZ4jAtjAb6695-nnJy719p7UB~t77R3g6AOGO4hMOXPCZ1KT9GgNc-aHiWx9SMEYWVrtq6N4bYRhOAWctpKsznvH4nDfzJfhPQiJdVawxEc468Pg__',
@@ -97,8 +109,7 @@ function HomeScreen() {
           />
         </View>
       </View>
-      <View
-        style={style.menuContainer}>
+      <View style={style.menuContainer}>
         <View
           style={{
             backgroundColor: '#af392f',
@@ -130,7 +141,7 @@ function HomeScreen() {
             style={{
               flex: 1.2,
               marginTop: 10,
-              marginLeft: 0
+              marginLeft: 0,
             }}>
             <Image
               source={require('../media/images/img_car.png')}
@@ -143,13 +154,9 @@ function HomeScreen() {
           </View>
         </View>
         <View style={style.menuList}>
-        {
-          dataMenu.map((item, index) => {
-            return (
-              <Menu item={item} key={index}/>
-            )
-          })
-        }
+          {dataMenu.map((item, index) => {
+            return <Menu item={item} key={index} />;
+          })}
         </View>
       </View>
       <View
@@ -158,12 +165,20 @@ function HomeScreen() {
           flex: 1.5,
           padding: 20,
         }}>
-        <Text style={{...style.textBold, fontSize:20}}>Daftar Mobil Pilihan</Text>
+        <Text style={{...style.textBold, fontSize: 20}}>
+          Daftar Mobil Pilihan
+        </Text>
         <FlatList
           data={dataCarList}
-          renderItem={({item, index}) => 
-            <CarCard item={item} onPress={() => navigation.navigate("Detail", {id: item.id})}/>
-          }
+          renderItem={({item, index}) => (
+            <CarCard
+              item={item}
+              onPress={() => {
+                if (item.id !== car.details?.id) dispatch(resetState());
+                navigation.navigate('Detail', {id: item.id});
+              }}
+            />
+          )}
           numColumns={1}
         />
       </View>
@@ -193,12 +208,12 @@ const style = StyleSheet.create({
     color: 'white',
   },
   avatarContainer: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'flex-start',
-      marginRight: 10,
-    },
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    marginRight: 10,
+  },
   avatar: {
     width: 50,
     height: 50,
@@ -209,16 +224,16 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   menuContainer: {
-      backgroundColor: 'white',
-      flex: 1.2,
-      alignItems: 'center',
-    },
+    backgroundColor: 'white',
+    flex: 1.2,
+    alignItems: 'center',
+  },
   menu: {
     backgroundColor: '#A43333',
     padding: 18,
     borderRadius: 10,
     marginTop: 32,
-    marginBottom:8,
+    marginBottom: 8,
     marginHorizontal: 16,
   },
   menuTitle: {

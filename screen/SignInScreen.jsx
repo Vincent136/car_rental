@@ -13,10 +13,8 @@ import {useNavigation} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import Loading from '../component/Loading';
 import ModalPopUp from '../component/ModalPopUp';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { postLogin, selectUser } from '../redux/reducers/user';
+import { postLogin, selectUser, setStateByName, resetState } from '../redux/reducer/user';
 
 const initialFormState = {
   email: '',
@@ -63,19 +61,25 @@ function SignInScreen() {
     await dispatch(postLogin(formData));
   };
 
-  useEffect(()=>{
-    if(user.status === 'success'){
-      console.log("berhasil berhasil ")
-      console.log(user)
+  useEffect(() => {
+    if (user.status === 'success') {
       setModalVisible(true);
       setErrorMessage(null);
       setTimeout(() => {
-        navigation.navigate('Home');
+        setModalVisible(false);
+        dispatch(setStateByName({
+          name: 'status',
+          value: 'idle',
+        }));
+        navigation.navigate('Tabs', { screen: 'Profile' });
       }, 1000);
-    }
-    else if(user.status === 'failed'){
+    } else if (user.status === 'failed') {
       setModalVisible(true);
       setErrorMessage(user.message);
+      setTimeout(() => {
+        setModalVisible(false);
+        dispatch(resetState());
+      }, 2000);
     }
   }, [navigation, user]);
 
@@ -135,7 +139,7 @@ function SignInScreen() {
               <Feather name="x-circle" size={32} />
               {Array.isArray(errorMessage) ? (
                 errorMessage.map(error => {
-                  return <Text style={style.modalText}>{error.message}</Text>;
+                  return <Text key={error} style={style.modalText}>{error.message}</Text>;
                 })
               ) : (
                 <Text style={style.modalText}>{errorMessage}</Text>

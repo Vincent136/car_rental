@@ -5,32 +5,33 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {View, Text, Button, StyleSheet, Image} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-function AccountScreen() {
-  const [token, setToken] = useState(null);
+import {useDispatch, useSelector} from 'react-redux';
+import {getProfile, logout, selectUser} from '../redux/reducer/user';
 
+function AccountScreen() {
   const navigation = useNavigation();
 
-  const getToken = async () => {
-    try {
-      const res = await AsyncStorage.getItem('token');
-      console.log(res);
-      setToken(res);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
 
+  const onOpen = async () => {
+    await dispatch(getProfile(user.token));
+  };
   useFocusEffect(
     React.useCallback(() => {
       return () => {
-        if (!token) getToken();
+        onOpen();
       };
-    }, [])
+    }, []),
   );
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   return (
     <SafeAreaView style={style.container}>
-      {!token ? (
+      {!user.isLogin ? (
         <View style={style.textContainer}>
           <Image source={require('../media/images/akun_bg.png')} />
           <Text style={style.text}>
@@ -50,8 +51,7 @@ function AccountScreen() {
             title="Logout"
             color="red"
             onPress={() => {
-              AsyncStorage.removeItem('token');
-              setToken(null);
+              dispatch(logout());
             }}
           />
         </View>

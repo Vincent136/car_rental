@@ -1,6 +1,30 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+export const postRegister = createAsyncThunk(
+    'user/postRegister',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const res = await axios.post('http://192.168.1.57:3000/api/v1/auth/signup',
+                JSON.stringify(payload), {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+            );
+            const data = res.data;
+            return data;
+        } catch (e) {
+            if(e.response.data){
+                return rejectWithValue(e.response.data.message);
+            }else{
+                return rejectWithValue('Something went wrong');
+            }
+        }
+    }
+);
+
+
 export const postLogin = createAsyncThunk(
     'user/postLogin',
     async (payload, { rejectWithValue }) => {

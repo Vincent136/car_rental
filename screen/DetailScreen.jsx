@@ -4,7 +4,8 @@ import Markdown from 'react-native-markdown-display';
 import Feather from 'react-native-vector-icons/Feather';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCarsDetails, selectCar } from '../redux/reducer/car';
 
 const md = `## Include
   
@@ -41,15 +42,13 @@ const md = `## Include
 
 
 function DetailScreen({route}) {
-    const [dataCar, setDataCar] = useState([]);
-
     const {id} = route.params;
-
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const cars = useSelector(selectCar);
 
     const fetchData = async () => {
-        const res = await axios.get(`http://192.168.1.57:3000/api/v1/cars/${id}`)
-        setDataCar(res.data.data);
+        await dispatch(getCarsDetails(id))
     };
 
     useEffect(() => {
@@ -62,12 +61,12 @@ function DetailScreen({route}) {
         <IonIcon  name="arrow-back-outline" size={32}/>
     </Pressable>
     <View style={style.headerContainer}>
-        <Text style={style.headerText}>{dataCar.name}</Text>
+        <Text style={style.headerText}>{cars.details.name}</Text>
         <View style={style.iconContainer}>
             <Feather name="users" size={10} color="#8A8A8A" />
-            <Text style={{...style.headerText, fontWeight:'bold', marginLeft:2, marginRight:10}}>{dataCar.seat}</Text>
+            <Text style={{...style.headerText, fontWeight:'bold', marginLeft:2, marginRight:10}}>{cars.details.seat}</Text>
             <Feather name="briefcase" size={10} color="#8A8A8A" />
-            <Text style={{...style.headerText, fontWeight:'bold', marginLeft:2}}>{dataCar.baggage}</Text>
+            <Text style={{...style.headerText, fontWeight:'bold', marginLeft:2}}>{cars.details.baggage}</Text>
         </View>
         <Image style={style.headerImage} source={require("../media/images/zenix.png")} />
     </View>
@@ -77,9 +76,9 @@ function DetailScreen({route}) {
     </ScrollView>
     <View style={style.purchaseContainer}>
         <View>
-        <Text style={style.priceText}>Rp {dataCar.price}</Text>
+        <Text style={style.priceText}>Rp {cars.details.price}</Text>
         </View>
-        <Button color="green" style={style.purchaseButton} title="Lanjutkan Pembayaran" onPress={() => {navigation.navigate("Method", {dataCar:dataCar})}}/>
+        <Button color="green" style={style.purchaseButton} title="Lanjutkan Pembayaran" onPress={() => {navigation.navigate("Method", {dataCar:cars.details})}}/>
     </View>
   </SafeAreaView>
   );
@@ -114,8 +113,7 @@ const style = StyleSheet.create({
     },
     infoContainer: {
         padding: 20,
-        marginHorizontal: 20,
-        width: '100%',
+        width: '90%',
         height: '55%',
         backgroundColor: '#FFFFFF',
         borderRadius: 5,

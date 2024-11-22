@@ -1,5 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { configureStore } from '@reduxjs/toolkit';
 import {
   persistStore, persistReducer, FLUSH,
   REHYDRATE,
@@ -9,7 +8,7 @@ import {
   REGISTER,
 } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import rootReducer from './reducers';
+import rootReducer from './reducer';
 
 const persistConfig = {
     key: 'root',
