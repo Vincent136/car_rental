@@ -19,6 +19,7 @@ import {selectCar} from '../redux/reducer/car';
 import { selectForm } from '../redux/reducer/form';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CountDown from 'react-native-countdown-fixed';
 
 const labels = ['Pilih Metode', 'Bayar', 'Tiket'];
 
@@ -47,10 +48,9 @@ const days = [
   'Minggu',
 ];
 
-function PurchaseScreen({route}) {
+function PurchaseScreen({}) {
   const [rekening, setRekening] = useState('xxx-xxx-xxx-xxx');
   const [price, setPrice] = useState('1000000');
-  const {id} = route.params;
 
   const car = useSelector(selectCar);
   const form = useSelector(selectForm);
@@ -88,12 +88,22 @@ function PurchaseScreen({route}) {
         />
 
         <View style={{...style.padContainer}}>
-          <Text style={{...style.textBold, marginVertical: 10}}>
-            Selesaikan Pembayaran Sebelum
-          </Text>
-          <Text style={{...style.textBold, marginBottom: 10}}>
-            {formattedDate}
-          </Text>
+          <View style={{flexDirection:"row"}}>
+            <Text style={{...style.textBold, marginVertical: 10}}>
+              Selesaikan Pembayaran Sebelum
+            </Text>
+            <CountDown
+              until={100}
+              size={10}
+              digitStyle={{backgroundColor: 'red'}}
+              digitTxtStyle={{color: 'white'}}
+              timeToShow={['M', 'S', 'H']}
+              timeLabels={{h:null, m: null, s: null}}
+            />
+            </View>
+            <Text style={{...style.textBold, marginBottom: 10}}>
+              {formattedDate}
+            </Text>
         </View>
         <CarCard item={car.details} />
         <View style={{...style.padContainer}}>

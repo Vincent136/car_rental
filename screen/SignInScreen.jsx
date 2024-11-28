@@ -15,6 +15,12 @@ import Loading from '../component/Loading';
 import ModalPopUp from '../component/ModalPopUp';
 import { useDispatch, useSelector } from 'react-redux';
 import { postLogin, selectUser, setStateByName, resetState } from '../redux/reducer/user';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+GoogleSignin.configure({
+  webClientId: '701286461281-bssu8kfi1lk3bkhb0cs5499irj533gg9.apps.googleusercontent.com',
+});
+
 
 const initialFormState = {
   email: '',
@@ -40,28 +46,42 @@ function SignInScreen() {
   };
 
   const handleSubmit = async () => {
-    // try {
-    //   const res = await axios.post(
-    //     'http://192.168.1.57:3000/api/v1/auth/signin',
-    //     JSON.stringify(formData),
-    //     {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //     },
-    //   );
-    //   console.log(res.data.data.token);
-    //   if (res) {
-    //     await AsyncStorage.setItem('token', res.data.data.token);
-    //   }
-    // } catch (error) {
-    //   console.error(error.response.data.message);
-    //   setErrorMessage(error.response.data.message);
-    // }
     await dispatch(postLogin(formData));
   };
 
+  async function onGoogleButtonPress() {
+    console.log('function in');
+    // Check if your device supports Google Play
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+    // Get the users ID token
+    try {
+      const signInResult = await GoogleSignin.signIn();
+      console.log('sign in success', signInResult);
+    } catch (error) {
+      console.error('Google sign-in failed', error);
+    }
+  
+    // Try the new style of google-sign in result, from v13+ of that module
+    idToken = signInResult.data?.idToken;
+    if (!idToken) {
+      // if you are using older versions of google-signin, try old style result
+      idToken = signInResult.idToken;
+    }
+    if (!idToken) {
+      throw new Error('No ID token found');
+    }
+  
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(signInResult.data.token);
+    console.log(googleCredential);
+  
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);
+  }
+
   useEffect(() => {
+
     if (user.status === 'success') {
       setModalVisible(true);
       setErrorMessage(null);
@@ -130,8 +150,13 @@ function SignInScreen() {
             Sign Up Here
           </Text>
         </Text>
+        <Button
+          title="Google Sign-In"
+          onPress={() => onGoogleButtonPress().then(() => console.log('Signed in with Google!'))}
+        />
       </KeyboardAvoidingView>
       <Loading visible={isLoading} />
+      
       <ModalPopUp visible={modalVisible}>
         <View style={style.modalContainer}>
           {errorMessage ? (

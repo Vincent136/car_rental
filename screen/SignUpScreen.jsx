@@ -121,15 +121,15 @@ function SignUpScreen() {
       </KeyboardAvoidingView>
       <ModalPopUp visible={modalVisible}>
         <View style={style.modalContainer}>
-          {errorMessage ? (
+          {user.status == 'failed' ? (
             <>
               <Feather name="x-circle" size={32} />
-              {Array.isArray(errorMessage) ? (
-                errorMessage.map(error => {
+              {Array.isArray(user.message) ? (
+                user.message.map(error => {
                   return <Text style={style.modalText}>{error.message}</Text>;
                 })
               ) : (
-                <Text style={style.modalText}>{errorMessage}</Text>
+                <Text style={style.modalText}>{user.message}</Text>
               )}
             </>
           ) : (

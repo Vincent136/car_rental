@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -18,7 +18,7 @@ import {
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import IonIcons from 'react-native-vector-icons/Ionicons';
 
@@ -29,107 +29,139 @@ import SignInScreen from './screen/SignInScreen';
 import SignUpScreen from './screen/SignUpScreen';
 import DetailScreen from './screen/DetailScreen';
 import PurchaseScreen from './screen/PurchaseScreen';
-import PurchaseMethodScreen from './screen/PurchaseMethodScreen';
+import OrderScreen from './screen/OrderScreen';
+import OrderListScreen from './screen/OrderListScreen';
 
-import {persistor, store} from './redux/store'
-import { Provider } from 'react-redux'
-import { PersistGate } from 'redux-persist/integration/react';
+import {persistor, store} from './redux/store';
+import {Provider} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
+import {useSelector, useDispatch} from 'react-redux';
+import {selectUser} from './redux/reducer/user';
+import {getProfile} from './redux/reducer/user';
+import { logout } from './redux/reducer/user';
 
-const Tab = createBottomTabNavigator()
+const Tab = createBottomTabNavigator();
 
 function Tabs() {
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+
+  const checkUserData = async () => {
+    try {
+      await dispatch(getProfile(user.token));
+    } catch (error) {
+    }
+
+    if (user.status == 'failed') {
+      await dispatch(logout());
+    }
+  };
+
+  useEffect(() => {
+    checkUserData();
+  }, []);
+
 
   return (
     <Tab.Navigator
-        screenOptions={({route}) => ({
-          tabBarIcon: ({focused, color, size}) => {
-            let iconName;
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
+          let iconName;
 
-            if (route.name === 'Home') {
-              iconName = focused ? 'home' : 'home-outline';
-            } else if (route.name === 'Daftar Mobil') {
-              iconName = focused ? 'car' : 'car-outline';
-            } else if (route.name === 'Akun') {
-              iconName = focused ? 'person' : 'person-outline';
-            }
-            return <IonIcons name={iconName} color={color} size = {size}/> 
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Daftar Mobil') {
+            iconName = focused ? 'car' : 'car-outline';
+          } else if (route.name === 'Akun') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Daftar Order') {
+            iconName = focused ? 'list' : 'list-outline';
+          }
+          return <IonIcons name={iconName} color={color} size={size} />;
+        },
+        tabBarActiveTintColor: '#AF392F',
+        tabBarInactiveTintColor: 'gray',
+      })}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Tab.Screen
+        name="Daftar Mobil"
+        component={CarListScreen}
+        options={{
+          headerTitleStyle: {
+            fontWeight: 'bold',
           },
-          tabBarActiveTintColor: '#AF392F',
-          tabBarInactiveTintColor: 'gray',
-        })}>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{headerShown: false}}
-        />
-        <Tab.Screen
-          name="Daftar Mobil"
-          component={CarListScreen}
-          options={{
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        />
-        <Tab.Screen name="Akun" component={AccountScreen} />
-      </Tab.Navigator>
-  )
+        }}
+      />
+      <Tab.Screen
+        name="Daftar Order"
+        component={OrderListScreen}
+        options={{
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Tab.Screen name="Akun" component={AccountScreen} />
+    </Tab.Navigator>
+  );
 }
 
 function App() {
-
   const Stack = createNativeStackNavigator();
 
   return (
     <Provider store={store}>
-      <PersistGate  persistor={persistor}>
+      <PersistGate persistor={persistor}>
         <NavigationContainer>
-            <Stack.Navigator>
-              <Stack.Screen
-                name="Tabs"
-                component={Tabs}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="SignIn"
-                component={SignInScreen}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="SignUp"
-                component={SignUpScreen}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="Detail"
-                component={DetailScreen}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="Method"
-                component={PurchaseMethodScreen}
-                options={{
-                  headerShown: false,
-                }}
-              />
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Tabs"
+              component={Tabs}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="SignIn"
+              component={SignInScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUpScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Detail"
+              component={DetailScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Order"
+              component={OrderScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
 
-              <Stack.Screen
-                name="Purchase"
-                component={PurchaseScreen}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              
-            </Stack.Navigator>
+            <Stack.Screen
+              name="Purchase"
+              component={PurchaseScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack.Navigator>
         </NavigationContainer>
       </PersistGate>
     </Provider>
