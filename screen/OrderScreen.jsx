@@ -22,6 +22,7 @@ import {selectCar} from '../redux/reducer/car';
 import { selectUser } from '../redux/reducer/user';
 import ModalPopUp from '../component/ModalPopUp';
 import Feather from 'react-native-vector-icons/Feather';
+import Loading from '../component/Loading';
 
 const labels = ['Pilih Metode', 'Bayar', 'Tiket'];
 
@@ -38,6 +39,7 @@ function Order({route}) {
   const [disabledButton, setDisabledButton] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {dataCar} = route.params;
 
@@ -58,6 +60,7 @@ function Order({route}) {
   };
 
   const Order = async () => {
+    setIsLoading(true);
     try {
       const json = {
         car_id: car.details?.id,
@@ -66,10 +69,15 @@ function Order({route}) {
         payment_method: form.bank?.name,
         is_driver: false,
       };
+      
+      console.log(json);
 
       await dispatch(setOrder({json: json, token: user.token}));
     } catch (err) {
+      console.log(err);
     }
+
+    setIsLoading(false);
 
     if (form.status === 'success') {
       setModalVisible(true);
@@ -176,6 +184,7 @@ function Order({route}) {
           }}
         />
       </View>
+      <Loading visible={isLoading} />
 
       <ModalPopUp visible={modalVisible}>
         <View style={style.modalContainer}>
@@ -305,6 +314,10 @@ const style = StyleSheet.create({
   },
   padContainer: {
     paddingHorizontal: 20,
+  },
+  modalContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

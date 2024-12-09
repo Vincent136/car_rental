@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { View, Image, Text, StyleSheet, TouchableOpacity } from "react-native";
 import CountDown from 'react-native-countdown-fixed';
 
@@ -9,10 +9,16 @@ export default function OrderCard ({item, onPress}) {
     
     useFocusEffect(
         React.useCallback(() => {
-            const overdue_countdown =  new Date(item.overdue_time) - new Date();
-            setCountdown(overdue_countdown)
+            console.log(new Date(item.overdue_time))
+            console.log(new Date())
+            const overdue_countdown =  (new Date(item.overdue_time) - new Date()) / 1000;
+            setCountdown(Math.floor(overdue_countdown))
         }, [])
     )
+
+    useEffect(() => {
+        console.log(countdown);
+    }, [countdown])
     return (
     <TouchableOpacity style={style.card} onPress={onPress}>
         <View style={style.cardInfo}>

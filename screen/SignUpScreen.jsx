@@ -12,10 +12,10 @@ import {useNavigation} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import ModalPopUp from '../component/ModalPopUp';
 import axios from 'axios';
-import Loading from '../component/Loading';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import { postRegister, selectUser, setStateByName, resetState } from '../redux/reducer/user';
+import { postRegister, selectUser } from '../redux/reducer/user';
 import { useDispatch, useSelector } from 'react-redux';
+import Loading from '../component/Loading';
 
 
 const initialFormState = {
@@ -30,8 +30,11 @@ function SignUpScreen() {
   }, initialFormState);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const user = useSelector(selectUser);
 
   const handleChange = (val, name) => {
     setFormData({
@@ -41,31 +44,28 @@ function SignUpScreen() {
   };
 
   const handleSubmit = async () => {
-    await dispatch(postRegister(formData));
-  };
-
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const user = useSelector(selectUser);
-
-  useEffect(() => {
-    if (user.status == "success") {
-      setModalVisible(true);
-      setErrorMessage(null);
-      setTimeout(() => {
-        setModalVisible(false);
-        dispatch(resetState());
-        navigation.navigate('SignIn');
-      }, 2000);
-    } else if (user.status == "failed") {
-      setModalVisible(true);
-      setErrorMessage(user.message);
-      setTimeout(() => {
-        setModalVisible(false);
-        dispatch(resetState());
-      }, 2000);
+    setIsLoading(true);
+    try {
+      await dispatch(postRegister(formData));
+    }catch (e) {
     }
-  }, [navigation.user]);
+    setIsLoading(false);
+
+    // if (user.status == "success") {
+    //   setModalVisible(true);
+    //   setTimeout(() => {
+    //     setModalVisible(false);
+    //     dispatch(resetState());
+    //     navigation.navigate('SignIn');
+    //   }, 2000);
+    // } else if (user.status == "failed") {
+    //   setModalVisible(true);
+    //   setTimeout(() => {
+    //     setModalVisible(false);
+    //     dispatch(resetState());
+    //   }, 2000);
+    // }
+  };
 
   return (
     <SafeAreaView style={style.container}>
@@ -119,6 +119,7 @@ function SignUpScreen() {
           </Text>
         </Text>
       </KeyboardAvoidingView>
+      <Loading visible={isLoading} />
       <ModalPopUp visible={modalVisible}>
         <View style={style.modalContainer}>
           {user.status == 'failed' ? (
@@ -126,7 +127,7 @@ function SignUpScreen() {
               <Feather name="x-circle" size={32} />
               {Array.isArray(user.message) ? (
                 user.message.map(error => {
-                  return <Text style={style.modalText}>{error.message}</Text>;
+                  return <Text style={style.modalText}>{error}</Text>;
                 })
               ) : (
                 <Text style={style.modalText}>{user.message}</Text>
@@ -140,8 +141,6 @@ function SignUpScreen() {
           )}
         </View>
       </ModalPopUp>
-
-      <Loading visible={isLoading} />
     </SafeAreaView>
   );
 }

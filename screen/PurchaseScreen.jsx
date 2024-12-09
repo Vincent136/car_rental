@@ -57,19 +57,23 @@ function PurchaseScreen({}) {
   const navigation = useNavigation();
 
   const today = new Date();
-  const formattedDate = `${days[today.getDay()]}, ${today
+  const formattedDate = (date) => {
+  return `${days[date.getDay()]}, ${date
     .getDate()
     .toString()
     .padStart(2, '0')} ${
-    months[today.getMonth()]
-  } ${today.getFullYear()} ${today
+    months[date.getMonth()]
+  } ${date.getFullYear()} ${date
     .getHours()
     .toString()
-    .padStart(2, '0')} : ${today.getMinutes().toString().padStart(2, '0')} WIB`;
+    .padStart(2, '0')} : ${date.getMinutes().toString().padStart(2, '0')} WIB`
+  }
 
   const copyToClipboard = text => {
     Clipboard.setString(text);
   };
+
+  console.log(form);
 
   return (
     <SafeAreaView style={style.container}>
@@ -102,7 +106,7 @@ function PurchaseScreen({}) {
             />
             </View>
             <Text style={{...style.textBold, marginBottom: 10}}>
-              {formattedDate}
+              {formattedDate(today)}
             </Text>
         </View>
         <CarCard item={car.details} />
@@ -144,7 +148,7 @@ function PurchaseScreen({}) {
                 Konfirmasi Pembayaran
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{...style.purchaseButton, backgroundColor:"white"}}>
+            <TouchableOpacity style={{...style.purchaseButton, backgroundColor:"white"}} onPress={() => navigation.navigate("Daftar Order")}>
               <Text style={{...style.purchaseTitle, color:"green"}}>
                 Lihat Daftar Pesanan
               </Text> 

@@ -15,12 +15,14 @@ import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import OrderCard from '../component/OrderCard';
 import axios from 'axios';
 import {selectUser} from '../redux/reducer/user';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import { getCarsDetails } from '../redux/reducer/car';
 
 function OrderListScreen() {
   const [dataOrder, setDataOrder] = useState(null);
 
   const user = useSelector(selectUser);
+  const dispatch = useDispatch();
 
   const fetchData = async () => {
     try {
@@ -43,6 +45,11 @@ function OrderListScreen() {
     }
   };
 
+  const onCardPress= async (id) => {
+     await dispatch(getCarsDetails(id))
+     navigation.navigate('Purchase')
+  }
+
   useFocusEffect(
     React.useCallback(() => {
       return () => {
@@ -62,7 +69,7 @@ function OrderListScreen() {
       {dataOrder ? <FlatList
         data={dataOrder.data}
         renderItem={({item, index}) => (
-          <OrderCard item={item} key={item.id} onPress={() => {}} />
+          <OrderCard item={item} key={item.id} onPress={() => onCardPress(item.id)} />
         )}
         numColumns={1}
       /> : <Text>No Order or Not Signed in</Text>

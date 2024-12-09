@@ -15,6 +15,7 @@ export const postRegister = createAsyncThunk(
             const data = res.data;
             return data;
         } catch (e) {
+            console.log(e);
             if(e.response.data){
                 return rejectWithValue(e.response.data.message);
             }else{

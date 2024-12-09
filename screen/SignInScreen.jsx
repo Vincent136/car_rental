@@ -81,7 +81,7 @@ function SignInScreen() {
   }
 
   useEffect(() => {
-
+    
     if (user.status === 'success') {
       setModalVisible(true);
       setErrorMessage(null);
@@ -222,6 +222,10 @@ const style = StyleSheet.create({
     position: 'absolute',
     top: 30,
     right: 20,
+  },
+  modalContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

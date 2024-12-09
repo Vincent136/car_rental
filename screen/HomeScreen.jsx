@@ -20,6 +20,7 @@ import axios from 'axios';
 import {resetState} from '../redux/reducer/form';
 import {selectCar} from '../redux/reducer/car';
 import {useSelector, useDispatch} from 'react-redux';
+import { getCars } from '../redux/reducer/car';
 
 const dataMenu = [
   {uri: '../media/images/Bg.png', title: 'Sewa Mobil', icon: 'truck'},
@@ -50,12 +51,7 @@ function HomeScreen() {
   const dispatch = useDispatch();
 
   const fetchData = async () => {
-    try {
-      const res = await axios.get('http://192.168.1.57:3000/api/v1/cars');
-      setDataCarList(res.data.data);
-    } catch (error) {
-      console.log(error);
-    }
+    await dispatch(getCars());
   };
 
   useFocusEffect(
@@ -169,7 +165,7 @@ function HomeScreen() {
           Daftar Mobil Pilihan
         </Text>
         <FlatList
-          data={dataCarList}
+          data={car.data}
           renderItem={({item, index}) => (
             <CarCard
               item={item}
